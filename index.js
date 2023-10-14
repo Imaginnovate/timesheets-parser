@@ -26,6 +26,7 @@ function main()
     }
 
     logger.color('green').reverse().log('This script will parse same month time sheets effectively...');
+    logger.log('');
     const dataInJSON = csvToJson({filePath: inputFile});
 
     const sortedData = _.sortBy(dataInJSON, ['Emp Code', 'Date']);
@@ -40,7 +41,7 @@ function main()
     const sheetData = []
     const sheetNames = ['Summary']
     const uniqueNames = _.uniqWith(sortedData.map(data => _.pick(data, ['Emp Code', 'Emp Name'])), _.isEqual);
-// Create Summary Object, Sheet Names Object and Empty Sheet Data.
+    // Create Summary Object, Sheet Names Object and Empty Sheet Data.
     _.forEach(uniqueNames, name => {
         summary.push({
             code: _.get(name, 'Emp Code'),
@@ -58,7 +59,14 @@ function main()
     const endDate = tempDate.clone().endOf('month');
     const month = tempDate.month();
     const year = tempDate.year();
-    logger.color('green').log(`Month identified as ${months[month]} ${year}`);
+    const holidays = _.filter(csvToJson({filePath: 'holidays.csv'}), h => {
+        return _.startsWith(h.Date, `${year}-${_.padStart(_.toString(month+1), 2, "0")}`);
+    })
+    logger.color('blue').log(`Month identified as ${months[month]} ${year}`);
+    _.forEach(holidays, h => {
+        logger.color('blue').log(`Holiday found on ${h.Date} - ${h.Name}`);
+    })
+    logger.log('');
     let tempEmpName = '';
     _.forEach(sortedData, row => {
         const code = _.get(row, 'Emp Code');
@@ -79,7 +87,7 @@ function main()
         // Add empty hours for non-working days
         if (daysDifference != 1) {
             for (i = daysAdded + 1; i < rowDay; i++) {
-                sheetData[index].push(getEmptyRow(_.get(row, 'Emp Name'), i, months[month], year))
+                sheetData[index].push(getEmptyRow(_.get(row, 'Emp Name'), i, months[month], year, holidays, month))
             }
             summary[index].daysAdded = i - 1;
         }
@@ -104,7 +112,7 @@ function main()
         const daysAdded = summary[index].daysAdded;
         const daysDifference = daysInMonth - daysAdded;
         for (i = daysAdded + 1; i <= daysInMonth; i++) {
-            sheetData[index].push(getEmptyRow(_.get(row, 'name'), i, months[month], year))
+            sheetData[index].push(getEmptyRow(_.get(row, 'name'), i, months[month], year, holidays, month))
         }
         sheetData[index].push({});
         sheetData[index].push({
@@ -131,12 +139,28 @@ function main()
     logger.color('green').reverse().log(`Excel file created: ${outputFile}`);
 }
 
-function getEmptyRow(empName, day, month, year) {
+function getEmptyRow(empName, day, month, year, holidays, monthNo) {
+    const dateString = `${year}-${_.padStart(monthNo + 1, 2, '0')}-${_.padStart(day, 2, '0')}`;
+    console.log(dateString);
+    const holidayIndex = _.findIndex(holidays, ['Date', dateString]);
+    let title = '';
+    let details = '';
+    if (holidayIndex != -1) {
+        title = 'Holiday';
+        details = holidays[holidayIndex].Name;
+    } else {
+        const dayOfWeek = moment(dateString, 'YYYY-MM-DD').isoWeekday();
+        if (dayOfWeek > 5) {
+            title = 'Weekend';
+        } else {
+            title = 'Leave';
+        }
+    }
     return {
         name: empName,
         date: `${month} ${_.padStart(_.toString(day), 2, '0')}, ${year}`,
-        title: '',
-        details: '',
+        title,
+        details,
         hours: '',
     }
 }

@@ -1,0 +1,20 @@
+{
+  "name": "timesheets",
+  "version": "1.0.0",
+  "description": "JBH Timesheets",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chalapathi Raju",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "csv-file-to-json": "^4.0.5",
+    "csv-read": "^2.0.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "node-color-log": "^10.0.2",
+    "write-excel-file": "^1.4.27"
+  }
+}

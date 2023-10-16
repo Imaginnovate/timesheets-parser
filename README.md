@@ -3,6 +3,7 @@ HRStop Time Sheets CSV to EXCEL
 
 **Setup**
 * Install GIT, NPM and Node
+  * https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 * Clone the repo
 * run `npm install`
 

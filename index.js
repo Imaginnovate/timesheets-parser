@@ -141,7 +141,6 @@ function main()
 
 function getEmptyRow(empName, day, month, year, holidays, monthNo) {
     const dateString = `${year}-${_.padStart(monthNo + 1, 2, '0')}-${_.padStart(day, 2, '0')}`;
-    console.log(dateString);
     const holidayIndex = _.findIndex(holidays, ['Date', dateString]);
     let title = '';
     let details = '';
@@ -199,6 +198,7 @@ function getSchemaArray(summary) {
             column: 'Hours',
             type: Number,
             value: data => _.get(data, 'hours'),
+            format: '0.00',
             borderColor: '#000000',
             width: 10,
         },
@@ -220,6 +220,7 @@ function getSchemaArray(summary) {
             column: 'Hours',
             type: Number,
             value: data => _.get(data, 'totalHours'),
+            format: '#',
             borderColor: '#000000',
             width: 10,
         },

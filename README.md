@@ -20,6 +20,12 @@ You can also specify output file name using `-o` option
 <br/>
 
 Example: `node index.js -i timesheets.csv -o Set2023TimeSheets.xlsx`
+<br/>
+
+Multiple entries for a day are combined by default, specify `-dc` to not combine
+<br/>
+
+Example: `node index.js -i timesheets.csv -dc`
 
 <br/>
 <br/>

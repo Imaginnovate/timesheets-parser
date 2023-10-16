@@ -15,10 +15,11 @@ function main()
         .usage('[OPTIONS]...')
         .option('-i, --input <value>', 'Input CSV file name')
         .option('-o, --output <value>', 'Optional output file name')
+        .option('-dc, --dontCombine', 'Dont Combine multiple entries for a day')
         .parse(process.argv);
 
     const options = commander.opts();
-
+    console.log(options, 'options');
     const inputFile = options.input;
     if (!inputFile) {
         logger.color('red').log('Please enter input file using -i option');
@@ -92,13 +93,21 @@ function main()
             summary[index].daysAdded = i - 1;
         }
         const hours = _.toNumber(_.get(row, 'Task Hours'), 0);
-        sheetData[index].push({
-            name: empName,
-            date: _.get(row, 'Date'),
-            title: _.get(row, 'Title'),
-            details: _.get(row, 'Description'),
-            hours: hours,
-        })
+
+        const prevRowData = sheetData[index][(sheetData[index].length - 1)];
+        if (!options.dontCombine && prevRowData && rowDate.isSame(moment(prevRowData.date, 'MMM DD, YYYY'))) {
+            prevRowData.details += `; ${_.get(row, 'Description')}`;
+            prevRowData.hours += hours;
+        } else {
+            sheetData[index].push({
+                name: empName,
+                date: _.get(row, 'Date'),
+                title: _.get(row, 'Title'),
+                details: _.get(row, 'Description'),
+                hours: hours,
+            })
+        }
+        
         summary[index].daysAdded = rowDay;
         summary[index].totalHours += hours;
     })

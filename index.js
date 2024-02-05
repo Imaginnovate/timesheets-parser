@@ -51,7 +51,7 @@ function main()
             daysAdded: 0,
             status: 'Existing Member'
         })
-        sheetNames.push(_.get(name, 'Emp Name'));
+        sheetNames.push(_.truncate(_.get(name, 'Emp Name'), 30));
         sheetData.push([]);
     })
 
